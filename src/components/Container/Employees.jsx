@@ -9,7 +9,7 @@ class Employees extends Component {
     filteredEmployees: [],
   };
 
-  // When this component mounts, search the Giphy API for pictures of kittens
+  // When this component mounts, load random users as employees from https://randomuser.me/
   componentDidMount() {
     API.getEmployees()
       .then((res) => this.setState({ employees: res.data.results }))
