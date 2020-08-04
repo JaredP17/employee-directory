@@ -7,48 +7,126 @@ class Employees extends Component {
     search: "",
     employees: [],
     filteredEmployees: [],
+    sortAscending: true,
   };
 
-  // When this component mounts, search the Giphy API for pictures of kittens
+  // When this component mounts, load random users as employees from https://randomuser.me/
   componentDidMount() {
     API.getEmployees()
-      .then((res) => this.setState({ employees: res.data.results }))
+      .then((res) =>
+        this.setState({
+          employees: res.data.results,
+          filteredEmployees: res.data.results,
+        })
+      )
       .catch((err) => console.log(err));
   }
+
+  // Update search state to filter by employee name
+  handleInputChange = (event) => {
+    const value = event.target.value;
+    this.setState({ search: value });
+    this.filterEmployees(value.toLowerCase().trim());
+  };
+
+  handleFormSubmit = (event) => {
+    event.preventDefault();
+  };
+
+//   sortEmployees = (field, property, backup) => {
+//     let sortEmployees = [...this.state.employees].sort((a, b) => {
+//       let x = a[field][property].toLowerCase();
+//       let y = b[field][property].toLowerCase();
+
+//       if (backup && x === y) {
+//         x = a[field][backup].toLowerCase();
+//         y = b[field][backup].toLowerCase();
+//         return x.localeCompare(y);
+//       }
+
+//       return x.localeCompare(y);
+//     });
+
+//     if (this.state.sortedEmployees !== sortEmployees) {
+//       sortEmployees = this.state.sortedEmployees.sort(() => -1);
+//     }
+
+//     this.setState({
+//       sortedEmployees: sortEmployees,
+//     });
+//   };
+
+  filterEmployees = (input) => {
+    if (input) {
+      this.setState({
+        filteredEmployees: this.state.employees.filter((employee) => {
+          return (
+            employee.name.first.toLowerCase().includes(input) ||
+            employee.name.last.toLowerCase().includes(input)
+          );
+        }),
+      });
+    } else {
+      this.setState({ filteredEmployees: this.state.employees });
+    }
+  };
 
   render() {
     return (
       <>
-        <SearchBar />
+        <SearchBar
+          value={this.state.search}
+          handleInputChange={this.handleInputChange}
+          handleFormSubmit={this.handleFormSubmit}
+        />
         <div className="container">
           <table className="table table-striped text-center mt-5">
             <thead>
               <tr>
                 <th scope="col">Image</th>
-                <th scope="col">Name</th>
-                <th scope="col">Phone</th>
-                <th scope="col">Email</th>
-                <th scope="col">DOB</th>
+                <th scope="col">
+                  <span onClick={() => console.log("Sort by name")}>Name</span>
+                </th>
+                <th scope="col">
+                  <span onClick={() => console.log("Sort by phone number")}>
+                    Phone
+                  </span>
+                </th>
+                <th scope="col">
+                  <span onClick={() => console.log("Sort by email")}>
+                    Email
+                  </span>
+                </th>
+                <th scope="col">
+                  <span onClick={() => console.log("Sort by dob")}>DOB</span>
+                </th>
               </tr>
             </thead>
             <tbody>
-              {this.state.employees.map((employee) => {
-                  const {first, last} = employee.name;
-                  const fullName = `${first} ${last}`;
-                  const date = new Date(employee.dob.date);
-                  let dob = [];
-                  dob.push(("0" + (date.getMonth() + 1)).slice(-2));
-                  dob.push(("0" + date.getDate()).slice(-2));
-                  dob.push(date.getFullYear());
-                  dob = dob.join("-");
+              {this.state.filteredEmployees.map((employee) => {
+                const { first, last } = employee.name;
+                const fullName = `${first} ${last}`;
+
+                // Format date
+                const date = new Date(employee.dob.date);
+                let dob = [];
+                dob.push(("0" + (date.getMonth() + 1)).slice(-2));
+                dob.push(("0" + date.getDate()).slice(-2));
+                dob.push(date.getFullYear());
+
+                // Join formatted date
+                dob = dob.join("-");
+
                 return (
-                  <tr>
+                  <tr key={employee.login.uuid}>
                     <th scope="row">
                       <img src={employee.picture.thumbnail} alt={fullName} />
                     </th>
                     <td>{fullName}</td>
                     <td>{employee.cell}</td>
-                    <td>{employee.email}</td>
+                    <td>
+                      <a href={`mailto:${employee.email}`}>{employee.email}</a>
+                    </td>
                     <td>{dob}</td>
                   </tr>
                 );
