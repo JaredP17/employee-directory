@@ -42,7 +42,7 @@ class Employees extends Component {
                   dob.push(date.getFullYear());
                   dob = dob.join("-");
                 return (
-                  <tr>
+                  <tr key={employee.login.uuid}>
                     <th scope="row">
                       <img src={employee.picture.thumbnail} alt={fullName} />
                     </th>
