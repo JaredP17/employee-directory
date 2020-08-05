@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import SearchBar from "../SearchBar";
 import API from "../../utils/API";
 
-class Employees extends Component {
+class EmployeesContainer extends Component {
   state = {
     search: "",
     employees: [],
@@ -139,4 +139,4 @@ class Employees extends Component {
   }
 }
 
-export default Employees;
+export default EmployeesContainer;
