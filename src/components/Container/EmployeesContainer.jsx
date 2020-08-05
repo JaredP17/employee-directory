@@ -7,7 +7,12 @@ class EmployeesContainer extends Component {
     search: "",
     employees: [],
     filteredEmployees: [],
-    sortAscending: true,
+    direction: {
+      name: "asc",
+      phone: "acs",
+      email: "asc",
+      dob: "asc",
+    },
   };
 
   // When this component mounts, load random users as employees from https://randomuser.me/
@@ -33,28 +38,49 @@ class EmployeesContainer extends Component {
     event.preventDefault();
   };
 
-//   sortEmployees = (field, property, backup) => {
-//     let sortEmployees = [...this.state.employees].sort((a, b) => {
-//       let x = a[field][property].toLowerCase();
-//       let y = b[field][property].toLowerCase();
+  //   sortEmployees = (field, property, backup) => {
+  //     let sortEmployees = [...this.state.employees].sort((a, b) => {
+  //       let x = a[field][property].toLowerCase();
+  //       let y = b[field][property].toLowerCase();
 
-//       if (backup && x === y) {
-//         x = a[field][backup].toLowerCase();
-//         y = b[field][backup].toLowerCase();
-//         return x.localeCompare(y);
-//       }
+  //       if (backup && x === y) {
+  //         x = a[field][backup].toLowerCase();
+  //         y = b[field][backup].toLowerCase();
+  //         return x.localeCompare(y);
+  //       }
 
-//       return x.localeCompare(y);
-//     });
+  //       return x.localeCompare(y);
+  //     });
 
-//     if (this.state.sortedEmployees !== sortEmployees) {
-//       sortEmployees = this.state.sortedEmployees.sort(() => -1);
-//     }
+  //     if (this.state.sortedEmployees !== sortEmployees) {
+  //       sortEmployees = this.state.sortedEmployees.sort(() => -1);
+  //     }
 
-//     this.setState({
-//       sortedEmployees: sortEmployees,
-//     });
-//   };
+  //     this.setState({
+  //       sortedEmployees: sortEmployees,
+  //     });
+  //   };
+
+  // Sort with the key of specified object, primary: first sortable property, secondary: optional second sort i.e. sort by last name, then first.
+  sortBy = (key, primary, secondary) => {
+    const sortedEmployees = this.state.filteredEmployees.sort((a, b) => {
+      a = a[key]
+      b = b[key]
+
+      // If secondary comparison given and primary comparison is equal
+      if (secondary && a[primary] === b[primary]) {
+        return a[secondary].localeCompare(secondary);
+      }
+
+      return a[primary].localeCompare(b[primary]);
+    });
+
+    console.log(sortedEmployees);
+
+    this.setState({
+      filteredEmployees: sortedEmployees,
+    });
+  };
 
   filterEmployees = (input) => {
     if (input) {
@@ -80,12 +106,12 @@ class EmployeesContainer extends Component {
           handleFormSubmit={this.handleFormSubmit}
         />
         <div className="container">
-          <table className="table table-striped text-center mt-5">
+          <table className="table table-striped table-sortable text-center mt-5">
             <thead>
               <tr>
                 <th scope="col">Image</th>
-                <th scope="col">
-                  <span onClick={() => console.log("Sort by name")}>Name</span>
+                <th scope="col" data-field="name" data-sortable="true">
+                  <span onClick={() => this.sortBy("name", "last", "first")}>Name</span>
                 </th>
                 <th scope="col">
                   <span onClick={() => console.log("Sort by phone number")}>
