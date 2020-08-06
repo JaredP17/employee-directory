@@ -7,13 +7,17 @@ class EmployeesContainer extends Component {
     search: "",
     employees: [],
     filteredEmployees: [],
-    direction: {
+    sortDirections: this.initialSortDirections,
+  };
+
+  get initialSortDirections() {
+    return {
       name: "",
       phone: "",
       email: "",
       dob: "",
-    },
-  };
+    };
+  }
 
   // When this component mounts, load random users as employees from https://randomuser.me/
   componentDidMount() {
@@ -38,31 +42,43 @@ class EmployeesContainer extends Component {
     event.preventDefault();
   };
 
-  // Sort with the key of specified object, primary: first sortable property, secondary: optional second sort i.e. sort by last name, then first.
-  sortBy = (key, primary, secondary) => {
-    let sortedEmployees = this.state.filteredEmployees.sort((a, b) => {
-      a = a[key];
-      b = b[key];
+  // Sort with the key of specified object.
+  // If key has children, sort by primary child and optionally a secondary child. i.e. sort by last name, then first.
+  sortBy = (key, primary = 0, secondary = 0) => {
+    let sortedEmployees = this.state.filteredEmployees;
+    if (this.state.sortDirections[key]) {
+      this.setState({
+        filteredEmployees: sortedEmployees.reverse(),
+        sortDirections: {
+          ...this.initialSortDirections,
+          [key]: this.state.sortDirections[key] === "asc" ? "desc" : "asc",
+        },
+      });
+    } else {
+        sortedEmployees = this.state.filteredEmployees.sort((a, b) => {
+        a = a[key];
+        b = b[key];
 
-      // If secondary comparison given and primary comparison is equal
-      // Example: Sorting by last name, if last names are equal, then sort that instance by first name instead.
-      if (secondary && a[primary] === b[primary]) {
-        return a[secondary].localeCompare(secondary);
-      }
+        // If secondary comparison given and primary comparison is equal
+        // Example: Sorting by last name, if last names are equal, then sort that instance by first name instead.
+        if (primary) {
+          if (secondary && a[primary] === b[primary]) {
+            return a[secondary].localeCompare(b[secondary]);
+          }
+          return a[primary].localeCompare(b[primary]);
+        } else {
+          return a.localeCompare(b);
+        }
+      });
 
-      return a[primary].localeCompare(b[primary]);
-    });
-
-    this.setState({
-      filteredEmployees:
-        this.state.direction[key] === "asc"
-          ? sortedEmployees.reverse()
-          : sortedEmployees,
-      direction: {
-        ...this.state.direction,
-        [key]: this.state.direction[key] === "asc" ? "desc" : "asc",
-      },
-    });
+      this.setState({
+        filteredEmployees: sortedEmployees,
+        sortDirections: {
+          ...this.initialSortDirections,
+          [key]: "asc",
+        },
+      });
+    }
   };
 
   filterEmployees = (input) => {
@@ -72,7 +88,7 @@ class EmployeesContainer extends Component {
           return (
             employee.name.first.toLowerCase().includes(input) ||
             employee.name.last.toLowerCase().includes(input) ||
-            employee.cell.includes(input) ||
+            employee.phone.includes(input) ||
             employee.email.includes(input) ||
             this.formatDate(employee.dob.date).includes(input)
           );
@@ -113,17 +129,13 @@ class EmployeesContainer extends Component {
                   </span>
                 </th>
                 <th scope="col">
-                  <span onClick={() => console.log("Sort by phone number")}>
-                    Phone
-                  </span>
+                  <span onClick={() => this.sortBy("phone")}>Phone</span>
                 </th>
                 <th scope="col">
-                  <span onClick={() => console.log("Sort by email")}>
-                    Email
-                  </span>
+                  <span onClick={() => this.sortBy("email")}>Email</span>
                 </th>
                 <th scope="col">
-                  <span onClick={() => console.log("Sort by dob")}>DOB</span>
+                  <span onClick={() => this.sortBy("dob", "date")}>DOB</span>
                 </th>
               </tr>
             </thead>
@@ -141,7 +153,7 @@ class EmployeesContainer extends Component {
                       <img src={employee.picture.thumbnail} alt={fullName} />
                     </th>
                     <td>{fullName}</td>
-                    <td>{employee.cell}</td>
+                    <td>{employee.phone}</td>
                     <td>
                       <a href={`mailto:${employee.email}`}>{employee.email}</a>
                     </td>
