@@ -87,10 +87,12 @@ class EmployeesContainer extends Component {
       this.setState({
         filteredEmployees: this.state.employees.filter((employee) => {
           return (
-            employee.name.first.toLowerCase().includes(input) ||
-            employee.name.last.toLowerCase().includes(input) ||
+            employee.name.first
+              .toLowerCase()
+              .concat(" ", employee.name.last.toLowerCase())
+              .includes(input) ||
             employee.phone.includes(input) ||
-            employee.phone.replace(/[^\w\s]/gi, '').includes(input) ||
+            employee.phone.replace(/[^\w\s]/gi, "").includes(input) ||
             employee.email.includes(input) ||
             this.formatDate(employee.dob.date).includes(input)
           );
