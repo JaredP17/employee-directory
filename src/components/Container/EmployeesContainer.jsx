@@ -8,10 +8,10 @@ class EmployeesContainer extends Component {
     employees: [],
     filteredEmployees: [],
     direction: {
-      name: "asc",
-      phone: "acs",
-      email: "asc",
-      dob: "asc",
+      name: "",
+      phone: "",
+      email: "",
+      dob: "",
     },
   };
 
@@ -38,36 +38,14 @@ class EmployeesContainer extends Component {
     event.preventDefault();
   };
 
-  //   sortEmployees = (field, property, backup) => {
-  //     let sortEmployees = [...this.state.employees].sort((a, b) => {
-  //       let x = a[field][property].toLowerCase();
-  //       let y = b[field][property].toLowerCase();
-
-  //       if (backup && x === y) {
-  //         x = a[field][backup].toLowerCase();
-  //         y = b[field][backup].toLowerCase();
-  //         return x.localeCompare(y);
-  //       }
-
-  //       return x.localeCompare(y);
-  //     });
-
-  //     if (this.state.sortedEmployees !== sortEmployees) {
-  //       sortEmployees = this.state.sortedEmployees.sort(() => -1);
-  //     }
-
-  //     this.setState({
-  //       sortedEmployees: sortEmployees,
-  //     });
-  //   };
-
   // Sort with the key of specified object, primary: first sortable property, secondary: optional second sort i.e. sort by last name, then first.
   sortBy = (key, primary, secondary) => {
-    const sortedEmployees = this.state.filteredEmployees.sort((a, b) => {
-      a = a[key]
-      b = b[key]
+    let sortedEmployees = this.state.filteredEmployees.sort((a, b) => {
+      a = a[key];
+      b = b[key];
 
       // If secondary comparison given and primary comparison is equal
+      // Example: Sorting by last name, if last names are equal, then sort that instance by first name instead.
       if (secondary && a[primary] === b[primary]) {
         return a[secondary].localeCompare(secondary);
       }
@@ -75,10 +53,15 @@ class EmployeesContainer extends Component {
       return a[primary].localeCompare(b[primary]);
     });
 
-    console.log(sortedEmployees);
-
     this.setState({
-      filteredEmployees: sortedEmployees,
+      filteredEmployees:
+        this.state.direction[key] === "asc"
+          ? sortedEmployees.reverse()
+          : sortedEmployees,
+      direction: {
+        ...this.state.direction,
+        [key]: this.state.direction[key] === "asc" ? "desc" : "asc",
+      },
     });
   };
 
@@ -88,7 +71,10 @@ class EmployeesContainer extends Component {
         filteredEmployees: this.state.employees.filter((employee) => {
           return (
             employee.name.first.toLowerCase().includes(input) ||
-            employee.name.last.toLowerCase().includes(input)
+            employee.name.last.toLowerCase().includes(input) ||
+            employee.cell.includes(input) ||
+            employee.email.includes(input) ||
+            employee.dob.date.includes(input)
           );
         }),
       });
@@ -96,6 +82,16 @@ class EmployeesContainer extends Component {
       this.setState({ filteredEmployees: this.state.employees });
     }
   };
+
+  formatDate(date) {
+    let dob = [];
+    dob.push(("0" + (date.getMonth() + 1)).slice(-2));
+    dob.push(("0" + date.getDate()).slice(-2));
+    dob.push(date.getFullYear());
+
+    // Join formatted date
+    return dob.join("-");
+  }
 
   render() {
     return (
@@ -111,7 +107,9 @@ class EmployeesContainer extends Component {
               <tr>
                 <th scope="col">Image</th>
                 <th scope="col" data-field="name" data-sortable="true">
-                  <span onClick={() => this.sortBy("name", "last", "first")}>Name</span>
+                  <span onClick={() => this.sortBy("name", "last", "first")}>
+                    Name
+                  </span>
                 </th>
                 <th scope="col">
                   <span onClick={() => console.log("Sort by phone number")}>
@@ -134,14 +132,7 @@ class EmployeesContainer extends Component {
                 const fullName = `${first} ${last}`;
 
                 // Format date
-                const date = new Date(employee.dob.date);
-                let dob = [];
-                dob.push(("0" + (date.getMonth() + 1)).slice(-2));
-                dob.push(("0" + date.getDate()).slice(-2));
-                dob.push(date.getFullYear());
-
-                // Join formatted date
-                dob = dob.join("-");
+                const dob = this.formatDate(new Date(employee.dob.date));
 
                 return (
                   <tr key={employee.login.uuid}>
