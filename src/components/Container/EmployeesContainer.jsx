@@ -118,8 +118,8 @@ class EmployeesContainer extends Component {
           handleInputChange={this.handleInputChange}
           handleFormSubmit={this.handleFormSubmit}
         />
-        <div className="container">
-          <table className="table table-striped table-sortable text-center mt-5">
+        <div className="container mt-4">
+          <table className="table table-striped table-sortable text-center">
             <thead>
               <tr>
                 <th scope="col">Image</th>
@@ -149,9 +149,9 @@ class EmployeesContainer extends Component {
 
                 return (
                   <tr key={employee.login.uuid}>
-                    <th scope="row">
+                    <td>
                       <img src={employee.picture.thumbnail} alt={fullName} />
-                    </th>
+                    </td>
                     <td className="align-middle">{fullName}</td>
                     <td className="align-middle">{employee.phone}</td>
                     <td className="align-middle">
