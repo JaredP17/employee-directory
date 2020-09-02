@@ -37,8 +37,9 @@ const EmployeeTable = (props) => {
                 <img src={employee.picture.thumbnail} alt={fullName} />
               </td>
               <td className="align-middle">{fullName}</td>
-              <td className="align-middle">{employee.phone}</td>
               <td className="align-middle">
+              <a href={`tel:+1${employee.phone}`}>{employee.phone}</a></td>
+              <td className="align-middle email">
                 <a href={`mailto:${employee.email}`}>{employee.email}</a>
               </td>
               <td className="align-middle">{dob}</td>

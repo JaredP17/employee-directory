@@ -7,6 +7,7 @@ thead th span{
 tbody {
     display: block;
     overflow-y: auto;
+    overflow-x: hidden;
     max-height: 65vh;
 }
 
@@ -15,4 +16,8 @@ tbody tr {
     display: table;
     width: 100%;
     table-layout: fixed;
+}
+
+.email {
+    overflow-x: auto;
 }
